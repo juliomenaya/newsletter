@@ -1,4 +1,6 @@
 from django.conf import settings
+from django.shortcuts import render
+from django.http import HttpResponse
 from django.urls import reverse
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -15,27 +17,53 @@ class NewslettersModelViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def send(self, request):
-        attachment = request.FILES.get('attachment')
+        attachment = request.data.get('attachment')
+        recipients = request.data.get('recipients')
+        newsletter_id = request.data.get('newsletter_id')
+        send_to_subscribers = request.data.get('send_to_subscribers')
+
+        newsletter = Newsletter.objects.get(id=newsletter_id)
+
         subject = 'Subject Test'
         template_name = 'promotion.html'
-        context = {
-            'username': 'John',
-            'unsubscribe_link': f'{settings.APP_HOST}{reverse("newsletter-unsubscribe")}?recipient_id=1&newsletter_id=1',
-            'newsletter_name': 'Awesome Newsletter',
-        }
         from_email = 'sender@example.com'
-        recipient_list = ['recipient1@example.com']
 
-        email_sender = EmailSender(subject, template_name, context, from_email, recipient_list)
-        sent, message = email_sender.send_email()
+        unsubscribe_base_link = f'{settings.APP_HOST}{reverse("newsletter-unsubscribe")}'
+        for recipient_email in recipients.split(','):
+            recipient = Recipient.objects.filter(email=recipient_email.strip()).first()
+            if recipient:
+                context = {
+                    'username': recipient,
+                    'unsubscribe_link': f'{unsubscribe_base_link}?recipient_id={recipient.id}&newsletter_id={newsletter.id}',
+                    'newsletter_name': newsletter.name,
+                }
+                email_sender = EmailSender(subject, template_name, context, from_email, [recipient.email])
+                email_sender.send_email()
 
-        if sent:
-            return Response({'message': message, 'status': 200})
-        else:
-            return Response({'message': message, 'status': 400})
+        if send_to_subscribers:
+            for recipient in newsletter.subscribers.all():
+                context = {
+                    'username': recipient,
+                    'unsubscribe_link': f'{unsubscribe_base_link}?recipient_id={recipient.id}&newsletter_id={newsletter.id}',
+                    'newsletter_name': newsletter.name,
+                }
+                email_sender = EmailSender(subject, template_name, context, from_email, [recipient.email])
+                email_sender.send_email()
+
+        return Response({'message': 'Emails sent', 'status': 200})
 
     @action(detail=False, methods=['get'])
     def unsubscribe(self, request):
-        recipient = Recipient.objects.get(id=request.query_params['recipient_id'])
-        Newsletter.objects.get(id=request.query_params['newsletter_id']).recipients.remove(recipient)
-        return Response()
+        try:
+            recipient = Recipient.objects.get(id=request.query_params['recipient_id'])
+            newsletter = Newsletter.objects.get(id=request.query_params['newsletter_id'])
+            newsletter.subscribers.remove(recipient)
+            context = {
+                'recipient_name': f'{recipient.first_name} {recipient.last_name}',
+                'newsletter_name': newsletter.name,
+            }
+            html_content = render(request, 'unsubscribe.html', context).content
+
+            return HttpResponse(html_content, content_type='text/html')
+        except (KeyError, ValueError, Recipient.DoesNotExist, Newsletter.DoesNotExist):
+            return Response(status=400)

@@ -5,7 +5,7 @@ from .views import NewslettersModelViewSet
 
 
 router = DefaultRouter()
-router.register(r'newsletter', NewslettersModelViewSet)
+router.register(r'newsletters', NewslettersModelViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
