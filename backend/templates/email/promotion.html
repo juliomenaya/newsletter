@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ newsletter_name }}</title>
+</head>
+<body>
+    <h1>Hello {{ username }}</h1>
+    <p>New limited time offer: Buy 3 and receive nothing.</p>
+    <p>We are sorry to see you go. If you no longer wish to receive our emails, you can unsubscribe by clicking the link below:</p>
+    <a href="{{ unsubscribe_link|safe }}">Unsubscribe</a>
+</body>
+</html>
