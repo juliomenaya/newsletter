@@ -1,3 +1,4 @@
+import os
 from django.conf import settings
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -15,9 +16,22 @@ class NewslettersModelViewSet(viewsets.ModelViewSet):
     queryset = Newsletter.objects.all()
     serializer_class = NewsletterSerializer
 
+    def save_attachment_in_temporary_path(self, attachment):
+        breakpoint()
+        temporary_path = os.path.join(settings.MEDIA_ROOT, attachment.name)
+        with open(temporary_path, 'wb') as file:
+            for chunk in attachment.chunks():
+                file.write(chunk)
+        return temporary_path
+
     @action(detail=False, methods=['post'])
     def send(self, request):
         attachment = request.data.get('attachment')
+
+        attachment_path = None
+        if attachment:
+            attachment_path = self.save_attachment_in_temporary_path(attachment)
+
         recipients = request.data.get('recipients')
         newsletter_id = request.data.get('newsletter_id')
         send_to_subscribers = request.data.get('send_to_subscribers')
@@ -37,7 +51,7 @@ class NewslettersModelViewSet(viewsets.ModelViewSet):
                     'unsubscribe_link': f'{unsubscribe_base_link}?recipient_id={recipient.id}&newsletter_id={newsletter.id}',
                     'newsletter_name': newsletter.name,
                 }
-                email_sender = EmailSender(subject, template_name, context, from_email, [recipient.email])
+                email_sender = EmailSender(subject, template_name, context, from_email, [recipient.email], attachment_path)
                 email_sender.send_email()
 
         if send_to_subscribers:
@@ -47,7 +61,7 @@ class NewslettersModelViewSet(viewsets.ModelViewSet):
                     'unsubscribe_link': f'{unsubscribe_base_link}?recipient_id={recipient.id}&newsletter_id={newsletter.id}',
                     'newsletter_name': newsletter.name,
                 }
-                email_sender = EmailSender(subject, template_name, context, from_email, [recipient.email])
+                email_sender = EmailSender(subject, template_name, context, from_email, [recipient.email], attachment_path)
                 email_sender.send_email()
 
         return Response({'message': 'Emails sent', 'status': 200})

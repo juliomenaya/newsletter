@@ -14,7 +14,7 @@ import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent
 
 
 # Quick-start development settings - unsuitable for production
@@ -60,8 +60,9 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'backend/templates'),  # local dev
-            os.path.join(BASE_DIR, 'app/templates')]  # docker-compose
+            os.path.join(BASE_DIR, 'templates'),  # local dev
+            # os.path.join(BASE_DIR, 'app/templates')
+        ]
         ,
         'APP_DIRS': True,
         'OPTIONS': {
@@ -139,3 +140,5 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 CORS_ORIGIN_ALLOW_ALL = True
 
 APP_HOST = os.getenv('APP_HOST', 'http://localhost:8000')
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
