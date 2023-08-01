@@ -1,29 +1,21 @@
 from django.core.management.base import BaseCommand
-from faker import Faker
-from newsletters.models import Newsletter, Recipient, Email
+from newsletters.models import Newsletter, Recipient
 
 
 class Command(BaseCommand):
     help = 'Populate initial data using Faker'
 
     def handle(self, *args, **kwargs):
-        fake = Faker()
 
-        promo_newsletter = Newsletter.objects.create(name='Promotions', email_template='promotion.html')
-        monthly_newsletter = Newsletter.objects.create(name='Monthly news', email_template='monthly_news.html')
+        promo_newsletter, _ = Newsletter.objects.get_or_create(name='Promotions', email_template='promotion.html')
+        monthly_newsletter, _ = Newsletter.objects.get_or_create(name='Monthly news', email_template='monthly_news.html')
 
-        for _ in range(5):
-            first_name = fake.first_name()
-            last_name = fake.last_name()
-            email = fake.email()
-            r = Recipient.objects.create(first_name=first_name, last_name=last_name, email=email)
+        email = 'julio@yopmail.com'
+
+        for i in range(1, 5):
+            first_name = f'Julioncho_{i}'
+            last_name = f'Mendez_{i}'
+            email = f'julio_{i}@yopmail.com'
+            r,_ = Recipient.objects.get_or_create(first_name=first_name, last_name=last_name, email=email)
             r.newsletters.add(promo_newsletter)
             r.newsletters.add(monthly_newsletter)
-
-        # all_recipients = Recipient.objects.all()
-
-        # for _ in range(50):
-        #     subject = fake.sentence(nb_words=4)
-        #     body = fake.text()
-        #     email = Email.objects.create(subject=subject, body=body, newsletter=promo_newsletter)
-        #     email.recipients.add(*all_recipients)
