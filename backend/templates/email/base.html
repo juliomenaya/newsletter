@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <h1>Newsletter!</h1>
+        <h2>{% block title %}Awesome newsletter{% endblock %}</h2>
+        <main>
+            <!-- The content of child templates will be inserted here -->
+            {% block content %}
+            {% endblock %}
+        </main>
+        <footer>
+            <p>We are sorry to see you go. If you no longer wish to receive our emails, you can unsubscribe by clicking the link below:</p>
+            <a href="{{ unsubscribe_link|safe }}">Unsubscribe</a>
+        </footer>
+    </body>
+</html>
