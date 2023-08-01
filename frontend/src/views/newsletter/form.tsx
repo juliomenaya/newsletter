@@ -13,6 +13,12 @@ const NewsletterForm: FC<NewsletterFormProps> = ({ newsletterId }) => {
   const [recipients, setRecipients] = useState('');
   const [sendToSubscribers, setSendToSubscribers] = useState(true);
 
+  const resetState = () => {
+    setFile(null);
+    setRecipients('');
+    setSendToSubscribers(true);
+  };
+
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     setFile(selectedFile || null);
@@ -39,13 +45,11 @@ const NewsletterForm: FC<NewsletterFormProps> = ({ newsletterId }) => {
         method: 'POST',
         body: formData,
       });
-      console.log(response);
       if (response.ok) {
-        // File successfully uploaded.
-        console.log('File uploaded successfully.');
+        alert('Newsletter sent! :)');
+        resetState();
       } else {
-        // Handle error response.
-        console.error('Failed to upload file.');
+        alert('Error sending newsletter');
       }
     } catch (error) {
       console.error('An error occurred:', error);

@@ -27,22 +27,24 @@ const Newsletter: FC = () => {
       <h1>Newsletters</h1>
       <p>Click over a Newsletter row to start</p>
       {newsletters && (
-        <Table>
+        <Table hover>
           <thead>
             <tr>
               <th>Id</th>
               <th>Name</th>
+              <th>Template</th>
             </tr>
           </thead>
           <tbody>
-            {newsletters.map(({ id, name, subscribers }: NewsletterProps) => (
+            {newsletters.map(({ id, name, subscribers, email_template }: NewsletterProps) => (
               <tr
                 key={id}
-                onClick={() => setSelectedNewsletter({ id: id, name: name, subscribers: subscribers })}
+                onClick={() => setSelectedNewsletter({ id: id, name: name, subscribers: subscribers, email_template })}
                 style={{ cursor: 'pointer' }}
               >
                 <td>{id}</td>
                 <td>{name}</td>
+                <td>{email_template}</td>
               </tr>
             ))}
           </tbody>
