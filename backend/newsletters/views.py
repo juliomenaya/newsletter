@@ -17,7 +17,6 @@ class NewslettersModelViewSet(viewsets.ModelViewSet):
     serializer_class = NewsletterSerializer
 
     def save_attachment_in_temporary_path(self, attachment):
-        breakpoint()
         temporary_path = os.path.join(settings.MEDIA_ROOT, attachment.name)
         with open(temporary_path, 'wb') as file:
             for chunk in attachment.chunks():

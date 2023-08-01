@@ -13,7 +13,7 @@ class EmailSender:
 
     def send_email(self):
         try:
-            html_message = render_to_string(f'email/{self.template_name}', self.context)
+            html_message = render_to_string(self.template_name, self.context)
             plain_message = strip_tags(html_message)
             email = EmailMultiAlternatives(
                 self.subject,
@@ -23,7 +23,6 @@ class EmailSender:
             )
             email.attach_alternative(html_message, 'text/html')
 
-            print('The attachment ', self.attachment_path)
             if self.attachment_path:
                 email.attach(self.attachment_path.split('/')[-1], open(self.attachment_path, 'rb').read())
 

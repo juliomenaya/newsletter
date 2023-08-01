@@ -9,19 +9,21 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         fake = Faker()
 
-        newsletter = Newsletter.objects.create(name='Promotions')
+        promo_newsletter = Newsletter.objects.create(name='Promotions', email_template='promotion.html')
+        monthly_newsletter = Newsletter.objects.create(name='Monthly news', email_template='monthly_news.html')
 
-        for _ in range(10):
+        for _ in range(5):
             first_name = fake.first_name()
             last_name = fake.last_name()
             email = fake.email()
             r = Recipient.objects.create(first_name=first_name, last_name=last_name, email=email)
-            r.newsletters.add(newsletter)
+            r.newsletters.add(promo_newsletter)
+            r.newsletters.add(monthly_newsletter)
 
-        all_recipients = Recipient.objects.all()
+        # all_recipients = Recipient.objects.all()
 
-        for _ in range(50):
-            subject = fake.sentence(nb_words=4)
-            body = fake.text()
-            email = Email.objects.create(subject=subject, body=body, newsletter=newsletter)
-            email.recipients.add(*all_recipients)
+        # for _ in range(50):
+        #     subject = fake.sentence(nb_words=4)
+        #     body = fake.text()
+        #     email = Email.objects.create(subject=subject, body=body, newsletter=promo_newsletter)
+        #     email.recipients.add(*all_recipients)

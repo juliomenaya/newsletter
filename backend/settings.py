@@ -61,6 +61,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             os.path.join(BASE_DIR, 'templates'),  # local dev
+            os.path.join(BASE_DIR, 'templates/email'),
             # os.path.join(BASE_DIR, 'app/templates')
         ]
         ,
